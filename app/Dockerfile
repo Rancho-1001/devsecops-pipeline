@@ -10,7 +10,7 @@ RUN useradd --create-home --uid 10001 appuser
 
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt gunicorn==22.0.0
+RUN pip install --no-cache-dir -r requirements.txt gunicorn==26.0.0
 
 COPY app.py seed.py ./
 

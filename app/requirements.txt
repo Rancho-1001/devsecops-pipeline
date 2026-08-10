@@ -1,10 +1,11 @@
-# A06 remediated: current, patched versions (no known High/Critical CVEs at pinning).
-Flask==3.0.3
-Werkzeug==3.0.4
-Jinja2==3.1.4
+# Current, patched versions (no known High/Critical CVEs at pin time).
+# The Trivy SCA gate keeps these honest — bump when it flags a new advisory.
+Flask==3.1.3
+Werkzeug==3.1.8
+Jinja2==3.1.6
 itsdangerous==2.2.0
-requests==2.32.3
-urllib3==2.2.2
-PyYAML==6.0.2
-PyJWT==2.9.0
-bcrypt==4.2.0
+requests==2.34.2
+urllib3==2.7.0
+PyYAML==6.0.3
+PyJWT==2.13.0
+bcrypt==5.0.0
