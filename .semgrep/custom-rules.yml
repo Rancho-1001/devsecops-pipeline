@@ -1,0 +1,70 @@
+# Custom Semgrep rules for this project, layered on top of the registry packs
+# (p/python, p/flask, p/security-audit) run in CI. These target the exact
+# anti-patterns planted in vulnerable-app so the SAST gate demonstrably catches
+# them and maps each to an OWASP category.
+rules:
+  - id: flask-debug-true
+    languages: [python]
+    severity: ERROR
+    message: >
+      Flask app run with debug=True exposes the Werkzeug debugger (RCE) and
+      leaks stack traces. OWASP A05 Security Misconfiguration.
+    metadata:
+      owasp: A05:2021 Security Misconfiguration
+      cwe: CWE-489 Active Debug Code
+    patterns:
+      - pattern: $APP.run(..., debug=True, ...)
+
+  - id: md5-for-passwords
+    languages: [python]
+    severity: ERROR
+    message: >
+      MD5 is not a password hash. Use bcrypt/argon2. OWASP A02 Cryptographic
+      Failures.
+    metadata:
+      owasp: A02:2021 Cryptographic Failures
+      cwe: CWE-327 Use of a Broken or Risky Cryptographic Algorithm
+    patterns:
+      - pattern: hashlib.md5(...)
+
+  - id: os-command-from-request
+    languages: [python]
+    severity: ERROR
+    message: >
+      OS command built from input via os.system/os.popen enables command
+      injection. Use subprocess with an argument list and validate input.
+      OWASP A03 Injection.
+    metadata:
+      owasp: A03:2021 Injection
+      cwe: CWE-78 OS Command Injection
+    pattern-either:
+      - pattern: os.system(... + ...)
+      - pattern: os.popen(... + ...)
+
+  - id: sql-string-format
+    languages: [python]
+    severity: ERROR
+    message: >
+      SQL query built via string concatenation or % formatting is injectable.
+      Use parameterized queries. OWASP A03 Injection.
+    metadata:
+      owasp: A03:2021 Injection
+      cwe: CWE-89 SQL Injection
+    pattern-either:
+      - pattern: $CONN.execute("..." + ...)
+      - pattern: $CONN.execute("..." % ...)
+
+  - id: ssrf-requests-without-redirect-guard
+    languages: [python]
+    severity: WARNING
+    message: >
+      requests.get() reachable from request input. Enforce an allowlist, block
+      private/link-local IPs, and set allow_redirects=False to reduce SSRF risk.
+      OWASP A10. (The fixed app validates scheme+host, rejects private IPs, and
+      sets allow_redirects=False.)
+    metadata:
+      owasp: A10:2021 Server-Side Request Forgery
+      cwe: CWE-918 SSRF
+    patterns:
+      - pattern: requests.get($URL, ...)
+      - pattern-not: requests.get($URL, ..., allow_redirects=False, ...)

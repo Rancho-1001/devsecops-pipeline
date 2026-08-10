@@ -1,0 +1,18 @@
+# Brings up the API so OWASP ZAP can run a DAST scan against a live instance.
+# Used by the CI "dast" job and reproducible locally:
+#   docker compose -f docker-compose.dast.yml up --build -d
+#   # then run the ZAP baseline against http://localhost:5000
+services:
+  api:
+    build: ./app
+    environment:
+      JWT_SECRET: "dast-only-ephemeral-secret-not-real"
+      BIND_HOST: "0.0.0.0"
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:5000/health').status==200 else 1)"]
+      interval: 5s
+      timeout: 3s
+      retries: 10

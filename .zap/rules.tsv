@@ -1,0 +1,14 @@
+# OWASP ZAP baseline rule tuning (tab-separated: ruleId<TAB>action<TAB>comment).
+# action: IGNORE | WARN | FAIL. The baseline scan fails the build on any FAIL-level
+# alert. We keep the injection/auth families at FAIL and downgrade noisy
+# informational rules to WARN so the gate is meaningful, not flaky.
+10021	WARN	X-Content-Type-Options header missing (info)
+10020	WARN	Anti-clickjacking header (info)
+10038	FAIL	Content Security Policy missing on API responses
+40018	FAIL	SQL Injection
+40012	FAIL	Cross Site Scripting (Reflected)
+40014	FAIL	Cross Site Scripting (Persistent)
+90019	FAIL	Server Side Code Injection
+90020	FAIL	Remote OS Command Injection
+40019	FAIL	SQL Injection - MySQL
+10202	WARN	Absence of Anti-CSRF Tokens (API is token-auth; info)

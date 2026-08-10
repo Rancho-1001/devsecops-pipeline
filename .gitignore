@@ -1,0 +1,29 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.db
+*.db-journal
+instance/
+
+# ---- Scanner output ----
+semgrep.sarif
+trivy-*.sarif
+gitleaks-report.json
+zap-report.*
+*.sarif
+
+# ---- Real secrets (NEVER commit) ----
+# NOTE: vulnerable-app/.env is committed ON PURPOSE as a Gitleaks demo target.
+# Your real secrets must live only here and never be committed:
+.env
+!vulnerable-app/.env
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

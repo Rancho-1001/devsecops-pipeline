@@ -1,0 +1,26 @@
+# Gitleaks config. Extends the built-in ruleset (AWS keys, Stripe keys, generic
+# high-entropy secrets, etc.) and adds a rule for this app's JWT signing key.
+title = "devsecops-pipeline gitleaks config"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "app-jwt-secret"
+description = "Hardcoded JWT signing secret"
+regex = '''(?i)(jwt[_-]?secret|signing[_-]?key)\s*[:=]\s*['\"]?[a-z0-9\-]{16,}'''
+tags = ["secret", "jwt"]
+
+[allowlist]
+description = "Placeholders + the reference-only vulnerable-app snapshot"
+regexes = [
+  '''change-me-to-a-long-random-value''',
+  '''test-secret-not-for-prod''',
+]
+# vulnerable-app/ is kept on main only so reviewers can diff it; its secrets are
+# allowlisted here so main stays green. The demo red comes from the `vulnerable`
+# branch, where create-vulnerable-branch.sh overlays that code into app/ (which
+# is NOT allowlisted), so Gitleaks flags app/.env there.
+paths = [
+  '''vulnerable-app/.*''',
+]
