@@ -64,3 +64,10 @@ def test_command_injection_input_rejected():
     r = client.get("/ping?host=127.0.0.1;whoami",
                    headers={"Authorization": f"Bearer {tok}"})
     assert r.status_code == 400
+
+
+def test_security_headers_present():
+    r = client.get("/health")
+    assert r.headers.get("Content-Security-Policy")
+    assert r.headers.get("X-Content-Type-Options") == "nosniff"
+    assert r.headers.get("X-Frame-Options") == "DENY"

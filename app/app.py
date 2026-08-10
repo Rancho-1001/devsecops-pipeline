@@ -52,7 +52,7 @@ def get_db() -> sqlite3.Connection:
 def make_token(user_id: int, role: str) -> str:
     now = datetime.now(timezone.utc)
     return jwt.encode(
-        {"sub": user_id, "role": role, "iat": now,
+        {"sub": str(user_id), "role": role, "iat": now,
          "exp": now + timedelta(minutes=JWT_TTL_MIN)},
         SECRET_KEY, algorithm=JWT_ALG)
 
@@ -67,7 +67,7 @@ def require_auth(fn):
             claims = jwt.decode(auth[7:], SECRET_KEY, algorithms=[JWT_ALG])
         except jwt.PyJWTError:
             return jsonify({"error": "invalid token"}), 401
-        g.user_id = claims["sub"]
+        g.user_id = int(claims["sub"])   # sub is a string per RFC 7519
         g.role = claims.get("role", "user")
         return fn(*args, **kwargs)
     return wrapper
@@ -159,6 +159,17 @@ def ping():
     except subprocess.TimeoutExpired:
         return jsonify({"error": "timeout"}), 504
     return jsonify({"output": out.stdout[:500]})
+
+
+@app.after_request
+def set_security_headers(resp):
+    # A05 hardening: security response headers (also satisfies the ZAP DAST gate).
+    resp.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
+    resp.headers["X-Content-Type-Options"] = "nosniff"
+    resp.headers["X-Frame-Options"] = "DENY"
+    resp.headers["Referrer-Policy"] = "no-referrer"
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
 
 
 @app.route("/health", methods=["GET"])
