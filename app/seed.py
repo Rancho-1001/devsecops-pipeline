@@ -1,8 +1,7 @@
-"""Seed SQLite with bcrypt-hashed passwords for the secure app."""
+"""Seed a tiny SQLite DB so the API runs. Shared shape with the fixed app."""
+import hashlib
 import os
 import sqlite3
-
-import bcrypt
 
 DB_PATH = os.environ.get("DB_PATH", "app.db")
 
@@ -19,14 +18,14 @@ def main():
     conn = sqlite3.connect(DB_PATH)
     conn.execute(
         "CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT, email TEXT, "
-        "role TEXT, password BLOB)")
+        "role TEXT, password TEXT)")
     for uid, uname, email, role, pw in USERS:
-        pw_hash = bcrypt.hashpw(pw.encode(), bcrypt.gensalt())
+        # Matches the vulnerable app's MD5 scheme (fixed app re-seeds with bcrypt).
         conn.execute("INSERT INTO users VALUES (?,?,?,?,?)",
-                     (uid, uname, email, role, pw_hash))
+                     (uid, uname, email, role, hashlib.md5(pw.encode()).hexdigest()))
     conn.commit()
     conn.close()
-    print(f"Seeded {DB_PATH} with {len(USERS)} users (bcrypt).")
+    print(f"Seeded {DB_PATH} with {len(USERS)} users.")
 
 
 if __name__ == "__main__":

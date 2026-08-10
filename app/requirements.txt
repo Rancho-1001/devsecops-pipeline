@@ -1,10 +1,10 @@
-# A06 remediated: current, patched versions (no known High/Critical CVEs at pinning).
-Flask==3.0.3
-Werkzeug==3.0.4
-Jinja2==3.1.4
-itsdangerous==2.2.0
-requests==2.32.3
-urllib3==2.2.2
-PyYAML==6.0.2
-PyJWT==2.9.0
-bcrypt==4.2.0
+# A06: Vulnerable & outdated components — pinned to versions with known CVEs so
+# Trivy's dependency scan has real findings. The fixed app upgrades all of these.
+Flask==0.12.2
+Werkzeug==0.14.1
+Jinja2==2.10
+itsdangerous==0.24
+requests==2.19.1
+urllib3==1.24.1
+PyYAML==3.13
+PyJWT==1.5.0
